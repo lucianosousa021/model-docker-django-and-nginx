@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+
+  django1:
+    build:
+      dockerfile: ./django.dockerfile
+      context: .
+    image: lucianosousas/djangoimg
+    environment:
+      - SECRET_KEY='django-insecure-%h!z-f0^m%j%(n!+-onguw5bf)s7ee$fs6z6uoxo*p=k!sxkgx'
+      - DEBUG=True
+      - GUNICORNPORT=8000
+    ports:
+      - "8000"
+    networks:
+      - test-network
+    volumes:
+      - ./django/static:/static
+
+
+  nginx:
+    build:
+      dockerfile: ./nginx.dockerfile
+      context: .
+    image: lucianosousas/nginximg
+    ports:
+      - "7070:80"
+    networks:
+      - test-network
+    volumes:
+      - ./django/static:/static
+    depends_on:
+      - django1
+
+networks:
+  test-network:
+    driver: bridge
